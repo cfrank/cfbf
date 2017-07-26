@@ -13,7 +13,7 @@ int main(int argc, char **argv)
                 {"version", 0, 0, 'v'},
                 {"license", 0, 0, 'l'},
                 {"help", 0, 0, 'h'},
-                {"file", 0, 0, 'f'},
+                {"file", required_argument, 0, 'f'},
                 {NULL, 0, NULL, 0},
         };
 
@@ -35,6 +35,7 @@ int main(int argc, char **argv)
                         cfbf_print_license();
                         break;
 
+                case '?':
                 case 'h':
                         cfbf_print_help();
                         break;
