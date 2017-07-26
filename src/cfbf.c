@@ -1,8 +1,74 @@
+#include "cfbf.h"
+#include <getopt.h>
 #include <stdio.h>
 
-int main(void)
-{
-    const char *message = "Testing makefile";
+// Version data
+#define VERSION_MAJOR '0'
+#define VERSION_MINOR '1'
+#define VERSION_PATCH '0'
 
-    printf("%s", message);
+int main(int argc, char **argv)
+{
+        static struct option long_options[] = {
+                {"version", 0, 0, 'v'},
+                {"license", 0, 0, 'l'},
+                {"help", 0, 0, 'h'},
+                {"file", 0, 0, 'f'},
+                {NULL, 0, NULL, 0},
+        };
+
+        int option;
+        int option_index = 0;
+
+        while ((option = getopt_long(argc, argv, "vlhf:", long_options, &option_index)) != -1) {
+                switch (option) {
+                case 0:
+                        printf("%s", "This is the 0 case");
+                        break;
+
+                case 'v':
+                        /* Version */
+                        cfbf_print_version();
+                        break;
+
+                case 'l':
+                        cfbf_print_license();
+                        break;
+
+                case 'h':
+                        cfbf_print_help();
+                        break;
+
+                case 'f':
+                        printf("%s", "File");
+                        break;
+
+                default:
+                        puts("For usage, run ./cfbf -h");
+                        break;
+                }
+        }
+}
+
+static void cfbf_print_version(void)
+{
+        printf("CFBF Brainfuck Interpreter Version: %c.%c.%c\n",
+               VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+}
+
+static void cfbf_print_license(void)
+{
+        printf("MIT License - https://opensource.org/licenses/MIT\n");
+}
+
+static void cfbf_print_help(void)
+{
+        cfbf_print_version();
+        puts("\n");
+        puts("./cfbf -f <Brainfuck File>");
+        puts("-v -- Prints the current running program version");
+        puts("-l -- Prints some useless license information");
+        puts("-h -- Prints this help dialog");
+        puts("-f <File> -- Specify the Brainfuck file to interpret *Required*");
+        puts("\n");
 }
