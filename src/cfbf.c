@@ -1,7 +1,7 @@
-#include "cfbf.h"
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "cfbf.h"
 
 // Version data
 #define VERSION_MAJOR '0'
