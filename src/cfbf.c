@@ -32,11 +32,11 @@ int main(int argc, char **argv)
                         break;
 
                 case 'l':
-                        printf("%s", "License");
+                        cfbf_print_license();
                         break;
 
                 case 'h':
-                        printf("%s", "Help");
+                        cfbf_print_help();
                         break;
 
                 case 'f':
@@ -54,4 +54,21 @@ static void cfbf_print_version(void)
 {
         printf("CFBF Brainfuck Interpreter Version: %c.%c.%c\n",
                VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+}
+
+static void cfbf_print_license(void)
+{
+        printf("MIT License - https://opensource.org/licenses/MIT\n");
+}
+
+static void cfbf_print_help(void)
+{
+        cfbf_print_version();
+        puts("\n");
+        puts("./cfbf -f <Brainfuck File>");
+        puts("-v -- Prints the current running program version");
+        puts("-l -- Prints some useless license information");
+        puts("-h -- Prints this help dialog");
+        puts("-f <File> -- Specify the Brainfuck file to interpret *Required*");
+        puts("\n");
 }
