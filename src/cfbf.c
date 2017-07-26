@@ -1,6 +1,7 @@
 #include "cfbf.h"
 #include <getopt.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // Version data
 #define VERSION_MAJOR '0'
@@ -22,12 +23,7 @@ int main(int argc, char **argv)
 
         while ((option = getopt_long(argc, argv, "vlhf:", long_options, &option_index)) != -1) {
                 switch (option) {
-                case 0:
-                        printf("%s", "This is the 0 case");
-                        break;
-
                 case 'v':
-                        /* Version */
                         cfbf_print_version();
                         break;
 
@@ -35,20 +31,24 @@ int main(int argc, char **argv)
                         cfbf_print_license();
                         break;
 
-                case '?':
                 case 'h':
                         cfbf_print_help();
                         break;
 
                 case 'f':
-                        printf("%s", "File");
+                        if (cfbf_open_file(optarg) == EXIT_FAILURE) {
+                                return EXIT_FAILURE;
+                        }
                         break;
 
-                default:
+                case '?':
+                        // get_opt encountered an unknown option
                         puts("For usage, run ./cfbf -h");
                         break;
                 }
         }
+
+        return EXIT_SUCCESS;
 }
 
 static void cfbf_print_version(void)
@@ -72,4 +72,21 @@ static void cfbf_print_help(void)
         puts("-h -- Prints this help dialog");
         puts("-f <File> -- Specify the Brainfuck file to interpret *Required*");
         puts("\n");
+}
+
+static int cfbf_open_file(char *filename)
+{
+        FILE *file = fopen(filename, "r");
+
+        if (file == NULL) {
+                fprintf(stderr, "Could not open file with name '%s'\n", filename);
+                return EXIT_FAILURE;
+        } else {
+                // Successfully opened file
+                printf("I can open '%s'\n", filename);
+                // Clean up file
+                fclose(file);
+        }
+
+        return EXIT_SUCCESS;
 }
