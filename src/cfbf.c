@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cfbf.h"
+#include "lex.h"
 
 // Version data
 #define VERSION_MAJOR '0'
@@ -84,7 +85,7 @@ static int cfbf_open_file(char *filename)
                 return 1;
         } else {
                 // Successfully opened file
-                printf("I can open '%s'\n", filename);
+                cfbf_consume_file(file);
                 // Clean up file
                 fclose(file);
         }
