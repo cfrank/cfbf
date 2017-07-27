@@ -25,21 +25,22 @@ int main(int argc, char **argv)
                 switch (option) {
                 case 'v':
                         cfbf_print_version();
-                        break;
+                        return EXIT_SUCCESS;
 
                 case 'l':
                         cfbf_print_license();
-                        break;
+                        return EXIT_SUCCESS;
 
                 case 'h':
                         cfbf_print_help();
-                        break;
+                        return EXIT_SUCCESS;
 
                 case 'f':
-                        if (cfbf_open_file(optarg) == EXIT_FAILURE) {
+                        if (cfbf_open_file(optarg) == 0) {
+                                return EXIT_SUCCESS;
+                        } else {
                                 return EXIT_FAILURE;
                         }
-                        break;
 
                 case '?':
                         // get_opt encountered an unknown option
@@ -80,7 +81,7 @@ static int cfbf_open_file(char *filename)
 
         if (file == NULL) {
                 fprintf(stderr, "Could not open file with name '%s'\n", filename);
-                return EXIT_FAILURE;
+                return 1;
         } else {
                 // Successfully opened file
                 printf("I can open '%s'\n", filename);
@@ -88,5 +89,5 @@ static int cfbf_open_file(char *filename)
                 fclose(file);
         }
 
-        return EXIT_SUCCESS;
+        return 0;
 }
