@@ -14,6 +14,4 @@ typedef enum cfbf_token {
         UNKNOWN,
 } cfbf_token;
 
-int cfbf_comsume_file(FILE *file);
-void cfbf_consume_file_char(FILE *file, char *pointer);
-cfbf_token cfbf_tokenize(char input);
+extern int cfbf_consume_file(FILE *file);

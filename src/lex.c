@@ -1,22 +1,26 @@
 #include <stdio.h>
 #include "lex.h"
 
-int cfbf_consume_file(FILE *file)
+static void cfbf_consume_file_char(FILE *file, char *pointer);
+static cfbf_token cfbf_tokenize(char input);
+
+extern int cfbf_consume_file(FILE *file)
 {
         char c;
         do {
+                printf("%d\n", cfbf_tokenize(c));
                 cfbf_consume_file_char(file, &c);
-                printf("%c", c);
-                return 1;
         } while (c != EOF);
+
+        return 1;
 }
 
-void cfbf_consume_file_char(FILE *file, char *pointer)
+static void cfbf_consume_file_char(FILE *file, char *pointer)
 {
         *pointer = (char)fgetc(file);
 }
 
-cfbf_token tokenize(char input)
+static cfbf_token cfbf_tokenize(char input)
 {
         switch (input) {
         case '>':
