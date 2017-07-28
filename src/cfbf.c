@@ -37,7 +37,7 @@ int main(int argc, char **argv)
                         return EXIT_SUCCESS;
 
                 case 'f':
-                        if (cfbf_open_file(optarg) == 0) {
+                        if (optarg != NULL && cfbf_open_file(optarg) == 0) {
                                 return EXIT_SUCCESS;
                         } else {
                                 return EXIT_FAILURE;
@@ -89,6 +89,11 @@ static int cfbf_open_file(char *filename)
                 int32_t size = (int32_t)ftell(file);
                 fseek(file, 0, SEEK_SET);
                 cfbf_lex_state *state = cfbf_initialize_lexer(file, size);
+
+                if (state == NULL) {
+                        // Already printing an error message from init
+                        return 1;
+                }
 
                 printf("%d", state->commands[0]);
                 // Clean up lex state

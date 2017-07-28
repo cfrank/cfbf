@@ -8,8 +8,18 @@ static cfbf_token cfbf_tokenize(char input);
 extern cfbf_lex_state *cfbf_initialize_lexer(FILE *file, int32_t size)
 {
         char c;
-        uint32_t command_length = 0;
-        cfbf_lex_state *state = malloc(sizeof(cfbf_lex_state));
+        uint32_t commands_length = 0;
+        cfbf_lex_state *state, *temp_state;
+
+        temp_state = malloc(sizeof(cfbf_lex_state));
+
+        if (temp_state == NULL) {
+                fprintf(stderr, "Could not allocate %lu bytes for lex_state",
+                        sizeof(cfbf_lex_state));
+                return NULL;
+        }
+
+        state = temp_state;
         cfbf_token commands[size];
 
         // Read into commands from file
@@ -17,20 +27,23 @@ extern cfbf_lex_state *cfbf_initialize_lexer(FILE *file, int32_t size)
                 cfbf_token token = cfbf_tokenize(c);
 
                 if (token != UNKNOWN) {
-                        commands[command_length] = token;
-                        ++command_length;
+                        commands[commands_length] = token;
+                        ++commands_length;
                 }
         }
 
         // Setup initial state
-        state->commands = malloc(sizeof(cfbf_token) * command_length);
+        cfbf_token *commands_temp = malloc(sizeof(cfbf_token) * commands_length);
 
-        if (state->commands == NULL) {
+        if (commands_temp == NULL) {
                 fprintf(stderr, "Could not allocate %lu bytes for commands",
-                        sizeof(cfbf_token) * (uint32_t)size);
+                        sizeof(cfbf_token) * (uint32_t)commands_length);
+                return NULL;
         }
 
-        memcpy(state->commands, commands, (sizeof(cfbf_token) * command_length));
+        state->commands = commands_temp;
+
+        memcpy(state->commands, commands, (sizeof(cfbf_token) * commands_length));
         state->command_index = 0;
         state->jmp_index = 0;
         state->loop_index = 0;
