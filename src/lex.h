@@ -17,10 +17,9 @@ typedef enum cfbf_token {
 } cfbf_token;
 
 typedef struct cfbf_lex_state {
-        uint32_t line;
-        uint32_t column;
+        uint32_t command_index;
         uint16_t loop_index;
-        cfbf_token curr;
+        cfbf_token *commands;
         char *jmp_ptr;
         bool loop_closed;
 } cfbf_lex_state;

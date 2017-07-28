@@ -8,20 +8,36 @@ extern int cfbf_initialize_lexer(FILE *file, int32_t size)
 {
         char c;
         uint32_t index = 0;
-        cfbf_lex_state state = {0};
+        cfbf_lex_state state;
         cfbf_token commands[size];
+
+        // Read into commands from file
         while ((c = (char)fgetc(file)) != EOF) {
                 cfbf_token token = cfbf_tokenize(c);
 
                 if (token == UNKNOWN) {
-                        fprintf(stderr, "Invalid token found at index: %d\n", index);
+                        fprintf(stderr, "Invalid token found at index: %d\n",
+                                index);
                         return EXIT_FAILURE;
                 } else {
                         commands[index] = token;
                 }
                 ++index;
         }
-        printf("%lu\n", (sizeof(commands) / sizeof(cfbf_token)));
+
+        // Setup initial state
+        state.commands = malloc(sizeof(cfbf_token) * (uint32_t)size);
+
+        if (state.commands != NULL) {
+                fprintf(stderr, "Could not allocate %lu bytes for commands",
+                        sizeof(cfbf_token) * (uint32_t)size);
+        }
+
+        state.commands = commands;
+        state.command_index = 0;
+        state.loop_index = 0;
+        state.jmp_ptr = NULL;
+        state.loop_closed = false;
 
         return 1;
 }
