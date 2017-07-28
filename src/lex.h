@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 
 typedef enum cfbf_token {
@@ -14,4 +16,13 @@ typedef enum cfbf_token {
         UNKNOWN,
 } cfbf_token;
 
-extern int cfbf_consume_file(FILE *file);
+typedef struct cfbf_lex_state {
+        uint32_t line;
+        uint32_t column;
+        uint16_t loop_index;
+        cfbf_token curr;
+        char *jmp_ptr;
+        bool loop_closed;
+} cfbf_lex_state;
+
+extern int cfbf_initialize_lexer(FILE *file, int32_t size);

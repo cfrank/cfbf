@@ -1,23 +1,29 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "lex.h"
 
-static void cfbf_consume_file_char(FILE *file, char *pointer);
 static cfbf_token cfbf_tokenize(char input);
 
-extern int cfbf_consume_file(FILE *file)
+extern int cfbf_initialize_lexer(FILE *file, int32_t size)
 {
         char c;
-        do {
-                printf("%d\n", cfbf_tokenize(c));
-                cfbf_consume_file_char(file, &c);
-        } while (c != EOF);
+        uint32_t index = 0;
+        cfbf_lex_state state = {0};
+        cfbf_token commands[size];
+        while ((c = (char)fgetc(file)) != EOF) {
+                cfbf_token token = cfbf_tokenize(c);
+
+                if (token == UNKNOWN) {
+                        fprintf(stderr, "Invalid token found at index: %d\n", index);
+                        return EXIT_FAILURE;
+                } else {
+                        commands[index] = token;
+                }
+                ++index;
+        }
+        printf("%lu\n", (sizeof(commands) / sizeof(cfbf_token)));
 
         return 1;
-}
-
-static void cfbf_consume_file_char(FILE *file, char *pointer)
-{
-        *pointer = (char)fgetc(file);
 }
 
 static cfbf_token cfbf_tokenize(char input)
