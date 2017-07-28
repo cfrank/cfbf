@@ -88,7 +88,11 @@ static int cfbf_open_file(char *filename)
                 fseek(file, 0, SEEK_END);
                 int32_t size = (int32_t)ftell(file);
                 fseek(file, 0, SEEK_SET);
-                cfbf_initialize_lexer(file, size);
+                cfbf_lex_state *state = cfbf_initialize_lexer(file, size);
+
+                printf("%d", state->commands[0]);
+                // Clean up lex state
+                cfbf_free_lex_state(state);
                 // Clean up file
                 fclose(file);
         }

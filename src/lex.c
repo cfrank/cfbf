@@ -1,45 +1,53 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "lex.h"
 
 static cfbf_token cfbf_tokenize(char input);
 
-extern int cfbf_initialize_lexer(FILE *file, int32_t size)
+extern cfbf_lex_state *cfbf_initialize_lexer(FILE *file, int32_t size)
 {
         char c;
-        uint32_t index = 0;
-        cfbf_lex_state state;
+        uint32_t command_length = 0;
+        cfbf_lex_state *state = malloc(sizeof(cfbf_lex_state));
         cfbf_token commands[size];
 
         // Read into commands from file
         while ((c = (char)fgetc(file)) != EOF) {
                 cfbf_token token = cfbf_tokenize(c);
 
-                if (token == UNKNOWN) {
-                        fprintf(stderr, "Invalid token found at index: %d\n",
-                                index);
-                        return EXIT_FAILURE;
-                } else {
-                        commands[index] = token;
+                if (token != UNKNOWN) {
+                        commands[command_length] = token;
+                        ++command_length;
                 }
-                ++index;
         }
 
         // Setup initial state
-        state.commands = malloc(sizeof(cfbf_token) * (uint32_t)size);
+        state->commands = malloc(sizeof(cfbf_token) * command_length);
 
-        if (state.commands != NULL) {
+        if (state->commands == NULL) {
                 fprintf(stderr, "Could not allocate %lu bytes for commands",
                         sizeof(cfbf_token) * (uint32_t)size);
         }
 
-        state.commands = commands;
-        state.command_index = 0;
-        state.loop_index = 0;
-        state.jmp_ptr = NULL;
-        state.loop_closed = false;
+        memcpy(state->commands, commands, (sizeof(cfbf_token) * command_length));
+        state->command_index = 0;
+        state->jmp_index = 0;
+        state->loop_index = 0;
+        state->loop_closed = false;
 
-        return 1;
+        return state;
+}
+
+extern void cfbf_free_lex_state(cfbf_lex_state *state)
+{
+        if (state->commands != NULL) {
+                free(state->commands);
+        }
+
+        if (state != NULL) {
+                free(state);
+        }
 }
 
 static cfbf_token cfbf_tokenize(char input)
