@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cfbf.h"
+#include "lex.h"
 
 // Version data
 #define VERSION_MAJOR '0'
@@ -83,8 +84,11 @@ static int cfbf_open_file(char *filename)
                 fprintf(stderr, "Could not open file with name '%s'\n", filename);
                 return 1;
         } else {
-                // Successfully opened file
-                printf("I can open '%s'\n", filename);
+                // Successfully opened file get size
+                fseek(file, 0, SEEK_END);
+                int32_t size = (int32_t)ftell(file);
+                fseek(file, 0, SEEK_SET);
+                cfbf_initialize_lexer(file, size);
                 // Clean up file
                 fclose(file);
         }
