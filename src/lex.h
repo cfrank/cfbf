@@ -18,10 +18,11 @@ typedef enum cfbf_token {
 
 typedef struct cfbf_lex_state {
         uint32_t command_index;
+        uint32_t jmp_index;
         uint16_t loop_index;
         cfbf_token *commands;
-        char *jmp_ptr;
         bool loop_closed;
 } cfbf_lex_state;
 
-extern int cfbf_initialize_lexer(FILE *file, int32_t size);
+extern cfbf_lex_state *cfbf_initialize_lexer(FILE *file, int32_t size);
+extern void cfbf_free_lex_state(cfbf_lex_state *state);
