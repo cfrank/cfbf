@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cfbf.h"
+#include "execute.h"
 #include "lex.h"
 
 // Version data
@@ -95,7 +96,8 @@ static int cfbf_open_file(char *filename)
                         return 1;
                 }
 
-                printf("%d", state->commands[0]);
+                cfbf_execute_commands(state);
+
                 // Clean up lex state
                 cfbf_free_lex_state(state);
                 // Clean up file

@@ -45,6 +45,7 @@ extern cfbf_lex_state *cfbf_initialize_lexer(FILE *file, int32_t size)
 
         memcpy(state->commands, commands, (sizeof(cfbf_token) * commands_length));
         state->command_index = 0;
+        state->commands_length = commands_length;
         state->jmp_index = 0;
         state->loop_index = 0;
         state->loop_closed = false;

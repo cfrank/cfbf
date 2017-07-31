@@ -18,6 +18,7 @@ typedef enum cfbf_token {
 
 typedef struct cfbf_lex_state {
         uint32_t command_index;
+        uint32_t commands_length;
         uint32_t jmp_index;
         uint16_t loop_index;
         cfbf_token *commands;
