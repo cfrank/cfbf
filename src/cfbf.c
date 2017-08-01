@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cfbf.h"
-#include "execute.h"
-#include "lex.h"
+#include "brainfuck.h"
 
 // Version data
 #define VERSION_MAJOR '0'
@@ -89,19 +88,24 @@ static int cfbf_open_file(char *filename)
                 fseek(file, 0, SEEK_END);
                 int32_t size = (int32_t)ftell(file);
                 fseek(file, 0, SEEK_SET);
-                cfbf_lex_state *state = cfbf_initialize_lexer(file, size);
+
+                cfbf_state *state = cfbf_initialize_state(file, size);
 
                 if (state == NULL) {
-                        // Already printing an error message from init
-                        return 1;
+                        goto err;
                 }
 
-                cfbf_execute_commands(state);
+                printf("%u", state->commands_length);
 
-                // Clean up lex state
-                cfbf_free_lex_state(state);
-                // Clean up file
+                // Clean up
+                cfbf_destroy_state(state);
                 fclose(file);
+                return 0;
+
+        err:
+                cfbf_destroy_state(state);
+                fclose(file);
+                return 1;
         }
 
         return 0;
