@@ -95,7 +95,7 @@ static int cfbf_open_file(char *filename)
                         goto err;
                 }
 
-                printf("%u", state->commands_length);
+                cfbf_run_commands(state);
 
                 // Clean up
                 cfbf_destroy_state(state);
@@ -103,6 +103,7 @@ static int cfbf_open_file(char *filename)
                 return 0;
 
         err:
+                // Enountered an error
                 cfbf_destroy_state(state);
                 fclose(file);
                 return 1;

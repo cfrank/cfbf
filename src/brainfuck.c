@@ -56,9 +56,42 @@ extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size)
                 return NULL;
         }
 
+        // Initialize tape with 0's
+        memset(state->tape, 0, sizeof(uint8_t) * TAPE_SIZE);
+
         state->head = 0;
 
         return state;
+}
+
+extern void cfbf_run_commands(cfbf_state *state)
+{
+        for (size_t i = 0; i < state->commands_length; ++i) {
+                switch (state->commands[i]) {
+                case INCR_PTR:
+                        ++state->head;
+                        break;
+                case DECR_PTR:
+                        --state->head;
+                        break;
+                case INCR_BYTE:
+                        ++*(&state->tape[state->head]);
+                        break;
+                case DECR_BYTE:
+                        --*(&state->tape[state->head]);
+                        break;
+                case OUTP_BYTE:
+                        putchar(*(&state->tape[state->head]));
+                        break;
+                case ACCEPT_BYTE:
+                        *(&state->tape[state->head]) = (uint8_t)getchar();
+                        break;
+                default:
+                        break;
+                }
+
+                printf("%d\n", state->tape[i]);
+        }
 }
 
 extern void cfbf_destroy_state(cfbf_state *state)
