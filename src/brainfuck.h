@@ -22,6 +22,12 @@ typedef struct cfbf_state {
         uint32_t head;
 } cfbf_state;
 
+typedef struct cfbf_branch_table {
+        uint32_t *table;
+        uint32_t index;
+        uint32_t size;
+} cfbf_branch_table;
+
 extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size);
-extern void cfbf_run_commands(cfbf_state *state);
+extern int cfbf_run_commands(cfbf_state *state);
 extern void cfbf_destroy_state(cfbf_state *state);
