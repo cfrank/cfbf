@@ -22,8 +22,14 @@ typedef struct cfbf_state {
         uint32_t head;
 } cfbf_state;
 
+// Branch index tuple
+typedef struct cfbf_branch_value {
+        uint32_t open;
+        uint32_t close;
+} cfbf_branch_value;
+
 typedef struct cfbf_branch_table {
-        uint32_t *table;
+        cfbf_branch_value *table;
         uint32_t index;
         uint32_t size;
 } cfbf_branch_table;

@@ -79,17 +79,17 @@ static cfbf_branch_table *cfbf_initialize_branch_table(void)
         }
 
         // Allocate some room for indicies
-        bt->table = malloc(sizeof(uint32_t) * BRANCH_TABLE_SIZE);
+        bt->table = malloc(sizeof(cfbf_branch_value) * BRANCH_TABLE_SIZE);
 
         if (bt->table == NULL) {
                 fprintf(stderr, "Could not allocate %lu bytes for branch table \
                                 indicies",
-                        sizeof(uint32_t) * BRANCH_TABLE_SIZE);
+                        sizeof(cfbf_branch_value) * BRANCH_TABLE_SIZE);
                 return NULL;
         }
 
         bt->index = 0;
-        bt->size = BRANCH_TABLE_SIZE;
+        bt->size = (uint32_t)(sizeof(cfbf_branch_value) * BRANCH_TABLE_SIZE);
 
         return bt;
 }
@@ -100,26 +100,24 @@ static int cfbf_create_branch_table(cfbf_state *state, cfbf_branch_table *bt)
                 // The table is not large enough to add any more indicies we
                 // need to expand it.
                 if (bt->index >= bt->size) {
-                        printf("%s\n", "Reallocating memory");
-                        uint32_t *temp_table = realloc(bt->table, bt->size * 2);
+                        cfbf_branch_value *temp_table = realloc(bt->table, bt->size * 2);
 
                         if (temp_table == NULL) {
-                                fprintf(stderr, "Failed to reallocate %lu bytes\
+                                fprintf(stderr, "Failed to reallocate %d bytes\
                                                 for branch table indicies",
-                                        sizeof(uint32_t) * (bt->size * 2));
+                                        bt->size * 2);
                                 return 1;
                         }
 
                         bt->table = temp_table;
                         bt->size = bt->size * 2;
+                        free(temp_table);
                 }
 
                 if (state->commands[i] == JMP_FWRD) {
-                        printf("Adding %d to array index %d\n", i, bt->index);
-                        bt->table[bt->index] = i;
+                        bt->table[bt->index].open = i;
                         ++bt->index;
                 }
-                printf("%d\n", bt->table[bt->index]);
         }
 
         return 0;
@@ -164,8 +162,10 @@ extern int cfbf_run_commands(cfbf_state *state)
                         break;
                 case OUTP_BYTE:
                         putchar(state->tape[state->head]);
+                        break;
                 case ACCEPT_BYTE:
                         state->tape[state->head] = (uint8_t)getchar();
+                        break;
                 default:
                         break;
                 }
