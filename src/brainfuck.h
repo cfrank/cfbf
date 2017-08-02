@@ -30,8 +30,8 @@ typedef struct cfbf_branch_value {
 
 typedef struct cfbf_branch_table {
         cfbf_branch_value *table;
-        uint32_t index;
-        uint32_t size;
+        int32_t index;
+        int32_t size;
 } cfbf_branch_table;
 
 extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size);

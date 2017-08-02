@@ -89,7 +89,7 @@ static cfbf_branch_table *cfbf_initialize_branch_table(void)
         }
 
         bt->index = 0;
-        bt->size = (uint32_t)(sizeof(cfbf_branch_value) * BRANCH_TABLE_SIZE);
+        bt->size = (int32_t)(sizeof(cfbf_branch_value) * BRANCH_TABLE_SIZE);
 
         return bt;
 }
@@ -100,7 +100,7 @@ static int cfbf_create_branch_table(cfbf_state *state, cfbf_branch_table *bt)
                 // The table is not large enough to add any more indicies we
                 // need to expand it.
                 if (bt->index >= bt->size) {
-                        cfbf_branch_value *temp_table = realloc(bt->table, bt->size * 2);
+                        cfbf_branch_value *temp_table = realloc(bt->table, (size_t)bt->size * 2);
 
                         if (temp_table == NULL) {
                                 fprintf(stderr, "Failed to reallocate %d bytes\
@@ -115,8 +115,20 @@ static int cfbf_create_branch_table(cfbf_state *state, cfbf_branch_table *bt)
                 }
 
                 if (state->commands[i] == JMP_FWRD) {
+                        printf("Adding open tag (%d) to index %d\n", i, bt->index);
                         bt->table[bt->index].open = i;
                         ++bt->index;
+                } else if (state->commands[i] == JMP_BACK) {
+                        printf("Adding close tag (%d) to index %d\n", i, (bt->index - 1));
+                        if ((bt->index - 1) < 0) {
+                                fprintf(stderr, "Error: Found ']' but no '[' "
+                                                "exists before (Index = %u)\n",
+                                        i);
+                                return 1;
+                        }
+
+                        bt->table[bt->index - 1].close = i;
+                        --bt->index;
                 }
         }
 
@@ -137,6 +149,8 @@ static void cfbf_destroy_branch_table(cfbf_branch_table *bt)
 extern int cfbf_run_commands(cfbf_state *state)
 {
         cfbf_branch_table *bt = cfbf_initialize_branch_table();
+        uint32_t jmp_index = 0;
+        uint32_t code_ptr = 0;
 
         if (bt == NULL) {
                 goto err;
@@ -146,8 +160,9 @@ extern int cfbf_run_commands(cfbf_state *state)
                 goto err;
         }
 
-        for (size_t i = 0; i < state->commands_length; ++i) {
-                switch (state->commands[i]) {
+        while (code_ptr < state->commands_length) {
+                printf("commands length = %d - code_ptr = %d\n", state->commands_length, code_ptr);
+                switch (state->commands[code_ptr]) {
                 case INCR_PTR:
                         ++state->head;
                         break;
@@ -161,15 +176,35 @@ extern int cfbf_run_commands(cfbf_state *state)
                         --state->tape[state->head];
                         break;
                 case OUTP_BYTE:
-                        putchar(state->tape[state->head]);
+                        //putchar(state->tape[state->head]);
+                        printf("BF - %d\n", state->tape[state->head]);
                         break;
                 case ACCEPT_BYTE:
                         state->tape[state->head] = (uint8_t)getchar();
                         break;
+                case JMP_FWRD:
+                        printf("%d\n", state->tape[state->head]);
+                        if (state->tape[state->head] == 0) {
+                                printf("Moving code_ptr to %d - With jmp_index: %d\n", bt->table[jmp_index].close, jmp_index);
+                                state->head = bt->table[jmp_index].close;
+                                ++jmp_index;
+                        }
+                        break;
+                case JMP_BACK:
+                        if (state->tape[state->head] != 0) {
+                                printf("Moving code_ptr back to %d - With jmp_index: %d - With head: %d\n", bt->table[jmp_index].open, jmp_index, state->tape[state->head]);
+                                code_ptr = bt->table[jmp_index].open;
+                        }
+                        break;
                 default:
                         break;
                 }
+
+                ++code_ptr;
         }
+
+        cfbf_destroy_branch_table(bt);
+        return 0;
 
 err:
         cfbf_destroy_branch_table(bt);
