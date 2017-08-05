@@ -2,13 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include "brainfuck.h"
+#include "stack.h"
 
 static const uint32_t TAPE_SIZE = 0x7530;
-static const uint32_t BRANCH_TABLE_SIZE = 0x32;
 
 static cfbf_token cfbf_tokenize(char input);
-static cfbf_branch_table *cfbf_initialize_branch_table(void);
-static int cfbf_create_branch_table(cfbf_state *state, cfbf_branch_table *bt);
+static void cfbf_generate_jumps(cfbf_state *state);
 
 extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size)
 {
@@ -26,28 +25,29 @@ extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size)
         }
 
         // Initialize a commands array on the stack
-        cfbf_token commands[size];
+        cfbf_command commands[size];
 
         while ((c = (char)fgetc(file)) != EOF) {
                 cfbf_token token = cfbf_tokenize(c);
 
                 if (token != UNKNOWN) {
-                        commands[commands_length] = token;
+                        commands[commands_length].token = token;
+                        commands[commands_length].jmp_ptr = -1;
                         ++commands_length;
                 }
         }
 
         // Allocate just enough memory to store all the commands
-        state->commands = malloc(sizeof(cfbf_token) * commands_length);
+        state->commands = malloc(sizeof(cfbf_command) * commands_length);
 
         if (state->commands == NULL) {
                 fprintf(stderr, "Could not allocate %lu bytes for commands array",
-                        sizeof(cfbf_token) * commands_length);
+                        sizeof(cfbf_command) * commands_length);
                 return NULL;
         }
 
         // Copy commands array to state
-        memcpy(state->commands, commands, (sizeof(cfbf_token) * commands_length));
+        memcpy(state->commands, commands, (sizeof(cfbf_command) * commands_length));
         state->commands_length = commands_length;
 
         // Set up tape
@@ -67,102 +67,33 @@ extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size)
         return state;
 }
 
-static cfbf_branch_table *cfbf_initialize_branch_table(void)
+static void cfbf_generate_jumps(cfbf_state *state)
 {
-        // Allocate branch table
-        cfbf_branch_table *bt = malloc(sizeof(cfbf_branch_table));
+        cfbf_stack *stack = cfbf_create_stack();
 
-        if (bt == NULL) {
-                fprintf(stderr, "Could not allocate %lu bytes for branch table",
-                        sizeof(cfbf_branch_table));
-                return NULL;
-        }
+        for (size_t i = 0; i < state->commands_length; ++i) {
+                printf("%d\n", state->commands[i].token);
+                if (state->commands[i].token == JMP_FWRD) {
+                        cfbf_stack_push(stack, (uint32_t)i);
+                } else if (state->commands[i].token == JMP_BACK) {
+                        uint32_t jmp_fwrd;
+                        cfbf_stack_pop(stack, &jmp_fwrd);
 
-        // Allocate some room for indicies
-        bt->table = malloc(sizeof(cfbf_branch_value) * BRANCH_TABLE_SIZE);
-
-        if (bt->table == NULL) {
-                fprintf(stderr, "Could not allocate %lu bytes for branch table \
-                                indicies",
-                        sizeof(cfbf_branch_value) * BRANCH_TABLE_SIZE);
-                return NULL;
-        }
-
-        bt->index = 0;
-        bt->size = (int32_t)(sizeof(cfbf_branch_value) * BRANCH_TABLE_SIZE);
-
-        return bt;
-}
-
-static int cfbf_create_branch_table(cfbf_state *state, cfbf_branch_table *bt)
-{
-        for (uint32_t i = 0; i < state->commands_length; ++i) {
-                // The table is not large enough to add any more indicies we
-                // need to expand it.
-                if (bt->index >= bt->size) {
-                        cfbf_branch_value *temp_table = realloc(bt->table, (size_t)bt->size * 2);
-
-                        if (temp_table == NULL) {
-                                fprintf(stderr, "Failed to reallocate %d bytes\
-                                                for branch table indicies",
-                                        bt->size * 2);
-                                return 1;
-                        }
-
-                        bt->table = temp_table;
-                        bt->size = bt->size * 2;
-                        free(temp_table);
-                }
-
-                if (state->commands[i] == JMP_FWRD) {
-                        printf("Adding open tag (%d) to index %d\n", i, bt->index);
-                        bt->table[bt->index].open = i;
-                        ++bt->index;
-                } else if (state->commands[i] == JMP_BACK) {
-                        printf("Adding close tag (%d) to index %d\n", i, (bt->index - 1));
-                        if ((bt->index - 1) < 0) {
-                                fprintf(stderr, "Error: Found ']' but no '[' "
-                                                "exists before (Index = %u)\n",
-                                        i);
-                                return 1;
-                        }
-
-                        bt->table[bt->index - 1].close = i;
-                        --bt->index;
+                        state->commands[jmp_fwrd].jmp_ptr = (int32_t)i;
+                        state->commands[i].jmp_ptr = (int32_t)jmp_fwrd;
                 }
         }
 
-        return 0;
-}
-
-static void cfbf_destroy_branch_table(cfbf_branch_table *bt)
-{
-        if (bt->table != NULL) {
-                free(bt->table);
-        }
-
-        if (bt != NULL) {
-                free(bt);
-        }
+        cfbf_destroy_stack(stack);
 }
 
 extern int cfbf_run_commands(cfbf_state *state)
 {
-        cfbf_branch_table *bt = cfbf_initialize_branch_table();
-        uint32_t jmp_index = 0;
         uint32_t code_ptr = 0;
-
-        if (bt == NULL) {
-                goto err;
-        }
-
-        if (cfbf_create_branch_table(state, bt) != 0) {
-                goto err;
-        }
+        cfbf_generate_jumps(state);
 
         while (code_ptr < state->commands_length) {
-                printf("commands length = %d - code_ptr = %d\n", state->commands_length, code_ptr);
-                switch (state->commands[code_ptr]) {
+                switch (state->commands[code_ptr].token) {
                 case INCR_PTR:
                         ++state->head;
                         break;
@@ -183,18 +114,10 @@ extern int cfbf_run_commands(cfbf_state *state)
                         state->tape[state->head] = (uint8_t)getchar();
                         break;
                 case JMP_FWRD:
-                        printf("%d\n", state->tape[state->head]);
-                        if (state->tape[state->head] == 0) {
-                                printf("Moving code_ptr to %d - With jmp_index: %d\n", bt->table[jmp_index].close, jmp_index);
-                                state->head = bt->table[jmp_index].close;
-                                ++jmp_index;
-                        }
+                        //printf("Jumping to %d\n", state->commands[code_ptr].jmp_ptr);
                         break;
                 case JMP_BACK:
-                        if (state->tape[state->head] != 0) {
-                                printf("Moving code_ptr back to %d - With jmp_index: %d - With head: %d\n", bt->table[jmp_index].open, jmp_index, state->tape[state->head]);
-                                code_ptr = bt->table[jmp_index].open;
-                        }
+                        //printf("Jumping back to %d\n", state->commands[code_ptr].jmp_ptr);
                         break;
                 default:
                         break;
@@ -203,12 +126,7 @@ extern int cfbf_run_commands(cfbf_state *state)
                 ++code_ptr;
         }
 
-        cfbf_destroy_branch_table(bt);
         return 0;
-
-err:
-        cfbf_destroy_branch_table(bt);
-        return 1;
 }
 
 extern void cfbf_destroy_state(cfbf_state *state)
