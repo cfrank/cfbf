@@ -21,7 +21,6 @@ cfbf_stack *cfbf_create_stack(void)
 
 bool cfbf_stack_push(cfbf_stack *stack, uint32_t element)
 {
-        printf("Adding -> %u\n", element);
         cfbf_stack_item *item = malloc(sizeof(cfbf_stack_item));
 
         if (item == NULL) {

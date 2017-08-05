@@ -72,7 +72,6 @@ static void cfbf_generate_jumps(cfbf_state *state)
         cfbf_stack *stack = cfbf_create_stack();
 
         for (size_t i = 0; i < state->commands_length; ++i) {
-                printf("%d\n", state->commands[i].token);
                 if (state->commands[i].token == JMP_FWRD) {
                         cfbf_stack_push(stack, (uint32_t)i);
                 } else if (state->commands[i].token == JMP_BACK) {
@@ -107,17 +106,20 @@ extern int cfbf_run_commands(cfbf_state *state)
                         --state->tape[state->head];
                         break;
                 case OUTP_BYTE:
-                        //putchar(state->tape[state->head]);
-                        printf("BF - %d\n", state->tape[state->head]);
+                        putchar(state->tape[state->head]);
                         break;
                 case ACCEPT_BYTE:
                         state->tape[state->head] = (uint8_t)getchar();
                         break;
                 case JMP_FWRD:
-                        //printf("Jumping to %d\n", state->commands[code_ptr].jmp_ptr);
+                        if (state->tape[state->head] == 0) {
+                                code_ptr = (uint32_t)state->commands[code_ptr].jmp_ptr;
+                        }
                         break;
                 case JMP_BACK:
-                        //printf("Jumping back to %d\n", state->commands[code_ptr].jmp_ptr);
+                        if (state->tape[state->head] != 0) {
+                                code_ptr = (uint32_t)state->commands[code_ptr].jmp_ptr;
+                        }
                         break;
                 default:
                         break;
