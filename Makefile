@@ -1,7 +1,7 @@
 CC = gcc
-FLAGS = -g --std=c99 -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual \
-		-Wstrict-prototypes -Wmissing-prototypes -Wcast-align -Winline \
-		-Wfloat-equal -Wconversion -Wundef
+FLAGS = --std=c99 -O3 -pedantic -Wall -Wextra -Werror -Wshadow \
+	-Wstrict-prototypes -Wmissing-prototypes -Wcast-align -Winline \
+	-Wfloat-equal -Wconversion -Wundef
 LIBS = -lm
 TARGET = cfbf
 SRC = src/
