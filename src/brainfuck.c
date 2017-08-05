@@ -106,8 +106,7 @@ extern int cfbf_run_commands(cfbf_state *state)
                         --state->tape[state->head];
                         break;
                 case OUTP_BYTE:
-                        //putchar(state->tape[state->head]);
-                        printf("%c", state->tape[state->head]);
+                        putchar(state->tape[state->head]);
                         break;
                 case ACCEPT_BYTE:
                         state->tape[state->head] = (uint8_t)getchar();
