@@ -1,5 +1,5 @@
 CC = gcc
-FLAGS = --std=c99 -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual \
+FLAGS = -g --std=c99 -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual \
 		-Wstrict-prototypes -Wmissing-prototypes -Wcast-align -Winline \
 		-Wfloat-equal -Wconversion -Wundef
 LIBS = -lm

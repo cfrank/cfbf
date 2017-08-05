@@ -15,18 +15,17 @@ typedef enum cfbf_token {
         UNKNOWN,
 } cfbf_token;
 
+typedef struct cfbf_command {
+        cfbf_token token;
+        int32_t jmp_ptr;
+} cfbf_command;
+
 typedef struct cfbf_state {
-        cfbf_token *commands;
+        cfbf_command *commands;
         uint32_t commands_length;
         uint8_t *tape;
         uint32_t head;
 } cfbf_state;
-
-typedef struct cfbf_branch_table {
-        uint32_t *table;
-        uint32_t index;
-        uint32_t size;
-} cfbf_branch_table;
 
 extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size);
 extern int cfbf_run_commands(cfbf_state *state);
