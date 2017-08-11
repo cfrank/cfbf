@@ -61,7 +61,7 @@ static void cfbf_print_version(void)
 
 static void cfbf_print_license(void)
 {
-        puts("MIT License - https://opensource.org/licenses/MIT\n");
+        puts("MIT License - https://opensource.org/licenses/MIT");
 }
 
 static void cfbf_print_help(void)
