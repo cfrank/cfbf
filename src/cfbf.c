@@ -95,7 +95,9 @@ static int cfbf_open_file(char *filename)
                         goto err;
                 }
 
-                cfbf_run_commands(state);
+                if (cfbf_run_commands(state) == 1) {
+                        goto err;
+                }
 
                 // Clean up
                 cfbf_destroy_state(state);

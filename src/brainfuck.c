@@ -7,7 +7,7 @@
 static const uint32_t TAPE_SIZE = 0x7530;
 
 static cfbf_token cfbf_tokenize(char input);
-static void cfbf_generate_jumps(cfbf_state *state);
+static int cfbf_generate_jumps(cfbf_state *state);
 
 extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size)
 {
@@ -67,7 +67,7 @@ extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size)
         return state;
 }
 
-static void cfbf_generate_jumps(cfbf_state *state)
+static int cfbf_generate_jumps(cfbf_state *state)
 {
         cfbf_stack *stack = cfbf_create_stack();
 
@@ -76,20 +76,34 @@ static void cfbf_generate_jumps(cfbf_state *state)
                         cfbf_stack_push(stack, (uint32_t)i);
                 } else if (state->commands[i].token == JMP_BACK) {
                         uint32_t jmp_fwrd;
-                        cfbf_stack_pop(stack, &jmp_fwrd);
-
-                        state->commands[jmp_fwrd].jmp_ptr = (int32_t)i;
-                        state->commands[i].jmp_ptr = (int32_t)jmp_fwrd;
+                        if (cfbf_stack_pop(stack, &jmp_fwrd)) {
+                                state->commands[jmp_fwrd].jmp_ptr = (int32_t)i;
+                                state->commands[i].jmp_ptr = (int32_t)jmp_fwrd;
+                        } else {
+                                fprintf(stderr, "Unopened close bracket found!\n");
+                                return 1;
+                        }
                 }
         }
 
+        if (!cfbf_stack_is_empty(stack)) {
+                fprintf(stderr, "Unclosed open bracket found!\n");
+                return 1;
+        }
+
         cfbf_destroy_stack(stack);
+
+        return 0;
 }
 
 extern int cfbf_run_commands(cfbf_state *state)
 {
         uint32_t code_ptr = 0;
-        cfbf_generate_jumps(state);
+
+        if (cfbf_generate_jumps(state) == 1) {
+                // Unbalanced brackets. Return error
+                return 1;
+        }
 
         while (code_ptr < state->commands_length) {
                 switch (state->commands[code_ptr].token) {
