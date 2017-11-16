@@ -1,6 +1,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "cfbf.h"
 #include "brainfuck.h"
 
@@ -37,7 +38,7 @@ int main(int argc, char **argv)
                         return EXIT_SUCCESS;
 
                 case 'f':
-                        if (optarg != NULL && cfbf_open_file(optarg) == 0) {
+                        if (optarg != NULL && cfbf_open_file(optarg)) {
                                 return EXIT_SUCCESS;
                         } else {
                                 return EXIT_FAILURE;
@@ -76,13 +77,13 @@ static void cfbf_print_help(void)
         puts("\n");
 }
 
-static int cfbf_open_file(char *filename)
+static bool cfbf_open_file(char *filename)
 {
         FILE *file = fopen(filename, "r");
 
         if (file == NULL) {
                 fprintf(stderr, "Could not open file with name '%s'\n", filename);
-                return 1;
+                return false;
         } else {
                 // Successfully opened file get size
                 fseek(file, 0, SEEK_END);
@@ -95,21 +96,19 @@ static int cfbf_open_file(char *filename)
                         goto err;
                 }
 
-                if (cfbf_run_commands(state) == 1) {
+                if (!cfbf_run_commands(state)) {
                         goto err;
                 }
 
                 // Clean up
                 cfbf_destroy_state(state);
                 fclose(file);
-                return 0;
+                return true;
 
         err:
                 // Enountered an error
                 cfbf_destroy_state(state);
                 fclose(file);
-                return 1;
+                return false;
         }
-
-        return 0;
 }

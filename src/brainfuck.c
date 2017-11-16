@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include "brainfuck.h"
@@ -7,7 +8,7 @@
 static const uint32_t TAPE_SIZE = 0x7530;
 
 static cfbf_token cfbf_tokenize(char input);
-static int cfbf_generate_jumps(cfbf_state *state);
+static bool cfbf_generate_jumps(cfbf_state *state);
 
 extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size)
 {
@@ -67,7 +68,7 @@ extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size)
         return state;
 }
 
-static int cfbf_generate_jumps(cfbf_state *state)
+static bool cfbf_generate_jumps(cfbf_state *state)
 {
         cfbf_stack *stack = cfbf_create_stack();
 
@@ -81,28 +82,29 @@ static int cfbf_generate_jumps(cfbf_state *state)
                                 state->commands[i].jmp_ptr = (int32_t)jmp_fwrd;
                         } else {
                                 fprintf(stderr, "Unopened close bracket found!\n");
-                                return 1;
+                                return false;
                         }
                 }
         }
 
         if (!cfbf_stack_is_empty(stack)) {
                 fprintf(stderr, "Unclosed open bracket found!\n");
-                return 1;
+                cfbf_destroy_stack(stack);
+                return false;
         }
 
         cfbf_destroy_stack(stack);
 
-        return 0;
+        return true;
 }
 
-extern int cfbf_run_commands(cfbf_state *state)
+extern bool cfbf_run_commands(cfbf_state *state)
 {
         uint32_t code_ptr = 0;
 
-        if (cfbf_generate_jumps(state) == 1) {
+        if (!cfbf_generate_jumps(state)) {
                 // Unbalanced brackets. Return error
-                return 1;
+                return false;
         }
 
         while (code_ptr < state->commands_length) {
@@ -142,7 +144,7 @@ extern int cfbf_run_commands(cfbf_state *state)
                 ++code_ptr;
         }
 
-        return 0;
+        return true;
 }
 
 extern void cfbf_destroy_state(cfbf_state *state)
