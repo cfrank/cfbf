@@ -15,9 +15,9 @@ typedef struct cfbf_stack {
         int32_t length;
 } cfbf_stack;
 
-cfbf_stack *cfbf_create_stack(void);
-bool cfbf_stack_push(cfbf_stack *stack, uint32_t element);
-bool cfbf_stack_pop(cfbf_stack *stack, uint32_t *dest);
-bool cfbf_stack_peek(cfbf_stack *stack, uint32_t *dest);
-bool cfbf_stack_is_empty(cfbf_stack *stack);
-void cfbf_destroy_stack(cfbf_stack *stack);
+extern cfbf_stack *cfbf_create_stack(void);
+extern bool cfbf_stack_push(cfbf_stack *stack, uint32_t element);
+extern bool cfbf_stack_pop(cfbf_stack *stack, uint32_t *dest);
+extern bool cfbf_stack_peek(cfbf_stack *stack, uint32_t *dest);
+extern bool cfbf_stack_is_empty(cfbf_stack *stack);
+extern void cfbf_destroy_stack(cfbf_stack *stack);
