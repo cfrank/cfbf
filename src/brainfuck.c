@@ -82,20 +82,22 @@ static bool cfbf_generate_jumps(cfbf_state *state)
                                 state->commands[i].jmp_ptr = (int32_t)jmp_fwrd;
                         } else {
                                 fprintf(stderr, "Unopened close bracket found!\n");
-                                return false;
+                                goto err;
                         }
                 }
         }
 
         if (!cfbf_stack_is_empty(stack)) {
                 fprintf(stderr, "Unclosed open bracket found!\n");
-                cfbf_destroy_stack(stack);
-                return false;
+                goto err;
         }
 
         cfbf_destroy_stack(stack);
-
         return true;
+
+err:
+        cfbf_destroy_stack(stack);
+        return false;
 }
 
 extern bool cfbf_run_commands(cfbf_state *state)
