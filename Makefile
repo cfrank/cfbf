@@ -2,7 +2,7 @@ CC = gcc
 FLAGS = --std=c99 -O3 -pedantic -Wall -Wextra -Werror -Wshadow \
 	-Wstrict-prototypes -Wmissing-prototypes -Wcast-align -Winline \
 	-Wfloat-equal -Wconversion -Wundef -Wno-newline-eof
-LIBS = -lm
+LIBS =
 TARGET = cfbf
 SRC = src/
 OUTPUT = bin/
