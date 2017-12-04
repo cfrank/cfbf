@@ -87,7 +87,6 @@ extern void cfbf_destroy_stack(cfbf_stack *stack)
         while (stack->head != NULL) {
                 item = stack->head;
                 stack->head = item->prev;
-
                 free(item);
         }
 
