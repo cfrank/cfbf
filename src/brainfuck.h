@@ -27,6 +27,6 @@ typedef struct cfbf_state {
         uint32_t head;
 } cfbf_state;
 
-extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size);
-extern bool cfbf_run_commands(cfbf_state *state);
-extern void cfbf_destroy_state(cfbf_state *state);
+cfbf_state *cfbf_initialize_state(FILE *file, int32_t size);
+bool cfbf_run_commands(cfbf_state *state);
+void cfbf_destroy_state(cfbf_state *state);
