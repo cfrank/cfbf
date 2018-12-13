@@ -10,7 +10,7 @@ static const uint32_t TAPE_SIZE = 0x7530;
 static cfbf_token cfbf_tokenize(char input);
 static bool cfbf_generate_jumps(cfbf_state *state);
 
-extern cfbf_state *cfbf_initialize_state(FILE *file, int32_t size)
+cfbf_state *cfbf_initialize_state(FILE *file, int32_t size)
 {
         char c;
         uint32_t commands_length = 0;
@@ -100,7 +100,7 @@ err:
         return false;
 }
 
-extern bool cfbf_run_commands(cfbf_state *state)
+bool cfbf_run_commands(cfbf_state *state)
 {
         uint32_t code_ptr = 0;
 
@@ -149,7 +149,7 @@ extern bool cfbf_run_commands(cfbf_state *state)
         return true;
 }
 
-extern void cfbf_destroy_state(cfbf_state *state)
+void cfbf_destroy_state(cfbf_state *state)
 {
         if (state->commands != NULL) {
                 free(state->commands);

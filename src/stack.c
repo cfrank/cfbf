@@ -2,7 +2,7 @@
 #include <string.h>
 #include "stack.h"
 
-extern cfbf_stack *cfbf_create_stack(void)
+cfbf_stack *cfbf_create_stack(void)
 {
         cfbf_stack *stack = malloc(sizeof(cfbf_stack));
 
@@ -19,7 +19,7 @@ extern cfbf_stack *cfbf_create_stack(void)
         return stack;
 }
 
-extern bool cfbf_stack_push(cfbf_stack *stack, uint32_t element)
+bool cfbf_stack_push(cfbf_stack *stack, uint32_t element)
 {
         cfbf_stack_item *item = malloc(sizeof(cfbf_stack_item));
 
@@ -43,7 +43,7 @@ extern bool cfbf_stack_push(cfbf_stack *stack, uint32_t element)
         return true;
 }
 
-extern bool cfbf_stack_pop(cfbf_stack *stack, uint32_t *dest)
+bool cfbf_stack_pop(cfbf_stack *stack, uint32_t *dest)
 {
         if (cfbf_stack_is_empty(stack)) {
                 return false;
@@ -60,7 +60,7 @@ extern bool cfbf_stack_pop(cfbf_stack *stack, uint32_t *dest)
         return true;
 }
 
-extern bool cfbf_stack_peek(cfbf_stack *stack, uint32_t *dest)
+bool cfbf_stack_peek(const cfbf_stack *stack, uint32_t *dest)
 {
         if (cfbf_stack_is_empty(stack)) {
                 return false;
@@ -71,12 +71,12 @@ extern bool cfbf_stack_peek(cfbf_stack *stack, uint32_t *dest)
         return true;
 }
 
-extern bool cfbf_stack_is_empty(cfbf_stack *stack)
+bool cfbf_stack_is_empty(const cfbf_stack *stack)
 {
         return stack->length == 0;
 }
 
-extern void cfbf_destroy_stack(cfbf_stack *stack)
+void cfbf_destroy_stack(cfbf_stack *stack)
 {
         if (cfbf_stack_is_empty(stack)) {
                 goto destroy_stack;
