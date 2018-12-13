@@ -5,7 +5,6 @@ A simple Brainfuck interpreter
 Usage:
 
 ```
-mkdir bin
 make
 ./bin/cfbf --file="<file>"
 -v -- Prints the current running program version

@@ -20,8 +20,12 @@ HEADERS = $(wildcard $(SRC)*.h)
 
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
-$(TARGET): $(OBJECTS)
+$(TARGET): $(OBJECTS) | $(OUTPUT)
 	$(CC) $(OBJECTS) $(FLAGS) $(LIBS) -o $(OUTPUT)$@
+
+$(OUTPUT):
+	@echo "Creating $(OUTPUT)"
+	@mkdir -p $@
 
 clean:
 	@echo "Cleaning"
