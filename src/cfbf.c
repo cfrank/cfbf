@@ -1,14 +1,18 @@
 #include <getopt.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include "cfbf.h"
 #include "brainfuck.h"
 
 // Version data
 #define VERSION_MAJOR '0'
 #define VERSION_MINOR '1'
 #define VERSION_PATCH '0'
+
+static void cfbf_print_help(void);
+static void cfbf_print_license(void);
+static void cfbf_print_version(void);
+static bool cfbf_open_file(char *filename);
 
 int main(int argc, char **argv)
 {
